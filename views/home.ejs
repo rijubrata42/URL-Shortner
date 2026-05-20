@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SnapURL — Shorten Smarter</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #0a0a0f;
+        --surface: #111118;
+        --surface2: #1a1a24;
+        --border: #2a2a3a;
+        --accent: #7c5cfc;
+        --accent2: #fc5c7d;
+        --text: #f0f0f8;
+        --muted: #888899;
+        --success: #4cffb3;
+        --mono: 'DM Mono', monospace;
+        --sans: 'Syne', sans-serif;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--sans);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(124,92,252,0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(124,92,252,0.03) 1px, transparent 1px);
+        background-size: 40px 40px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      body::after {
+        content: '';
+        position: fixed;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(124,92,252,0.12) 0%, transparent 70%);
+        top: -200px;
+        right: -200px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .container {
+        max-width: 860px;
+        margin: 0 auto;
+        padding: 0 24px;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* Header */
+      header {
+        padding: 32px 0 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .logo {
+        font-size: 1.4rem;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .logo span {
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        background: var(--surface2);
+        -webkit-text-fill-color: var(--muted);
+        color: var(--muted);
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+
+      /* Hero */
+      .hero {
+        padding: 72px 0 48px;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: clamp(2.4rem, 6vw, 4rem);
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -2px;
+        margin-bottom: 16px;
+      }
+
+      .hero h1 .highlight {
+        background: linear-gradient(135deg, var(--accent), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        color: var(--muted);
+        font-size: 1.1rem;
+        font-weight: 400;
+        max-width: 460px;
+        margin: 0 auto;
+        line-height: 1.6;
+      }
+
+      
+      .form-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 48px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .form-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, var(--accent), var(--accent2));
+      }
+
+      .form-row {
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .input-wrap {
+        flex: 1;
+        position: relative;
+      }
+
+      .input-wrap::before {
+        content: '🔗';
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        z-index: 1;
+      }
+
+      input[type="text"] {
+        width: 100%;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 0.95rem;
+        padding: 16px 16px 16px 48px;
+        border-radius: 12px;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+
+      input[type="text"]::placeholder {
+        color: var(--muted);
+      }
+
+      input[type="text"]:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(124,92,252,0.15);
+      }
+
+      .btn {
+        background: linear-gradient(135deg, var(--accent), #5a3fd4);
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 16px 28px;
+        font-family: var(--sans);
+        font-size: 0.95rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+        letter-spacing: 0.3px;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(124,92,252,0.4);
+      }
+
+      .btn:active {
+        transform: translateY(0);
+      }
+
+      .success-banner {
+        margin-top: 20px;
+        background: rgba(76,255,179,0.07);
+        border: 1px solid rgba(76,255,179,0.25);
+        border-radius: 12px;
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        animation: fadeIn 0.4s ease;
+      }
+
+      .success-banner .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+        flex-shrink: 0;
+        box-shadow: 0 0 8px var(--success);
+      }
+
+      .success-banner p {
+        font-size: 0.9rem;
+        color: var(--success);
+        font-family: var(--mono);
+      }
+
+      .success-banner a {
+        color: var(--success);
+        text-decoration: underline;
+        word-break: break-all;
+      }
+
+      /* Table section */
+      .section-title {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      .table-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        overflow: hidden;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        background: var(--surface2);
+      }
+
+      th {
+        padding: 14px 20px;
+        text-align: left;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted);
+        border-bottom: 1px solid var(--border);
+      }
+
+      td {
+        padding: 16px 20px;
+        font-size: 0.9rem;
+        border-bottom: 1px solid rgba(42,42,58,0.5);
+        vertical-align: middle;
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      tr:hover td {
+        background: rgba(124,92,252,0.04);
+      }
+
+      .shortid-cell {
+        font-family: var(--mono);
+        font-size: 0.85rem;
+      }
+
+      .shortid-cell a {
+        color: var(--accent);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s;
+      }
+
+      .shortid-cell a:hover {
+        color: var(--accent2);
+      }
+
+      .redirect-cell {
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        color: var(--muted);
+        max-width: 260px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .clicks-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 4px 12px;
+        font-family: var(--mono);
+        font-size: 0.8rem;
+        color: var(--text);
+      }
+
+      .clicks-badge.active {
+        background: rgba(76,255,179,0.08);
+        border-color: rgba(76,255,179,0.2);
+        color: var(--success);
+      }
+
+      .copy-btn {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        color: var(--muted);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-family: var(--mono);
+        font-size: 0.75rem;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .copy-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .copy-btn.copied {
+        border-color: var(--success);
+        color: var(--success);
+      }
+
+      /* Empty state */
+      .empty-state {
+        padding: 64px 24px;
+        text-align: center;
+      }
+
+      .empty-state .icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.4;
+      }
+
+      .empty-state p {
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      footer {
+        padding: 48px 0 32px;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.8rem;
+        font-family: var(--mono);
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-8px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      @media (max-width: 600px) {
+        .form-row { flex-direction: column; }
+        .hero { padding: 48px 0 32px; }
+        th:nth-child(2), td:nth-child(2) { display: none; }
+        th:last-child, td:last-child { display: none; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+
+      <header>
+        <div class="logo">SnapURL <span>v1.0</span></div>
+      </header>
+
+      <section class="hero">
+        <h1>Shorten any URL<br /><span class="highlight">instantly.</span></h1>
+        <p>Paste your long link below and get a clean, shareable short URL in seconds.</p>
+      </section>
+
+      <div class="form-card">
+        <form method="POST" action="/url">
+          <div class="form-row">
+            <div class="input-wrap">
+              <input
+                type="text"
+                name="url"
+                placeholder="https://your-very-long-url.com/goes/here"
+                required
+              />
+            </div>
+            <button type="submit" class="btn">Shorten →</button>
+          </div>
+        </form>
+
+        <% if (locals.id) { %>
+        <div class="success-banner">
+          <div class="dot"></div>
+          <p>
+            Short URL ready:
+            <a href="/url/<%= id %>" target="_blank">http://localhost:8001/url/<%= id %></a>
+          </p>
+        </div>
+        <% } %>
+      </div>
+
+      <% if (locals.urls && urls.length > 0) { %>
+      <p class="section-title">All shortened URLs</p>
+      <div class="table-card">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Short ID</th>
+              <th>Original URL</th>
+              <th>Clicks</th>
+              <th>Copy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% urls.forEach((url, index) => { %>
+            <tr>
+              <td style="color: var(--muted); font-family: var(--mono); font-size: 0.8rem;"><%= index + 1 %></td>
+              <td class="shortid-cell">
+                <a href="/url/<%= url.shortId %>" target="_blank">
+                  <%= url.shortId %> ↗
+                </a>
+              </td>
+              <td class="redirect-cell"><%= url.redirectURL %></td>
+              <td>
+                <span class="clicks-badge <%= url.visitHistory.length > 0 ? 'active' : '' %>">
+                  ● <%= url.visitHistory.length %>
+                </span>
+              </td>
+              <td>
+                <button
+                  class="copy-btn"
+                  onclick="copyURL(this, 'http://localhost:8001/url/<%= url.shortId %>')"
+                >copy</button>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } else { %>
+      <div class="table-card">
+        <div class="empty-state">
+          <div class="icon">🔗</div>
+          <p>No URLs shortened yet. Paste one above to get started!</p>
+        </div>
+      </div>
+      <% } %>
+
+      <footer>
+        built with node.js + mongodb &mdash; SnapURL &copy; 2026
+      </footer>
+
+    </div>
+
+    <script>
+      function copyURL(btn, url) {
+        navigator.clipboard.writeText(url).then(() => {
+          btn.textContent = 'copied!';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = 'copy';
+            btn.classList.remove('copied');
+          }, 2000);
+        });
+      }
+    </script>
+  </body>
+</html>
